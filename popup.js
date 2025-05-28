@@ -1,0 +1,1 @@
+// Simple popup - no dynamic content needed

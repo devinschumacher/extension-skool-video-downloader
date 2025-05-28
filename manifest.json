@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "SERP Skool Video Downloader",
+  "version": "1.0.0",
+  "description": "Download Loom videos from Skool lessons with one click",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*.skool.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.skool.com/*/classroom/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "web_accessible_resources": [{
+    "resources": ["devinhead.svg"],
+    "matches": ["https://*.skool.com/*"]
+  }]
+}
