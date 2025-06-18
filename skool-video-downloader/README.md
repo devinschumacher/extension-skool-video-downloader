@@ -23,7 +23,7 @@ In order for this extension to work, you will need a free software called yt-dlp
 
 ## Other
 
-- Please see these youtube videos if you want more information on how this works, or an installation walkthrough.
+- Please see [these youtube videos](https://www.youtube.com/playlist?list=PLGq4YK_k-L5icyQlHv5X-QntbwLWizqFB) if you want more information on how this works, or an installation walkthrough.
 - Please report any issues and i'll see what I can do to fix em
 
 > Consider donating to support this free extension and the [other free stuff](https://serp.ly/@devinschumacher/stuff) im making!
