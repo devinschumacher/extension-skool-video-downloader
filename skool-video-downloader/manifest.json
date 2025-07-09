@@ -1,10 +1,13 @@
 {
   "manifest_version": 3,
   "name": "SERP Skool Video Downloader",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Download Loom videos from Skool lessons with one click",
-  "permissions": [],
-  "host_permissions": ["https://*.skool.com/*"],
+  "permissions": ["storage"],
+  "host_permissions": ["https://*.skool.com/*", "https://api.gumroad.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
