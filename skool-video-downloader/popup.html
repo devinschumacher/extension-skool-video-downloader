@@ -47,6 +47,12 @@
         .button:hover {
             background: #2563eb;
         }
+        .button.secondary {
+            background: #6b7280;
+        }
+        .button.secondary:hover {
+            background: #4b5563;
+        }
         .links {
             display: flex;
             justify-content: center;
@@ -63,12 +69,70 @@
         .links a:hover {
             color: #3b82f6;
         }
+        .license-section {
+            margin-bottom: 16px;
+        }
+        .license-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .license-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        .error {
+            color: #dc2626;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        #activated-content {
+            display: none;
+        }
+        #license-content {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <h1>SERP Skool Video Downloader</h1>
     
-    <p>Navigate to any Skool lesson page and click the blue download button that appears.</p>
+    <!-- Loading state -->
+    <div id="loading" class="loading">Loading...</div>
+    
+    <!-- License input section -->
+    <div id="license-content" class="license-section">
+        <div class="status inactive">
+            Extension not activated
+        </div>
+        <p>Please enter your license key from Gumroad to activate the extension.</p>
+        <input type="text" id="license-input" class="license-input" placeholder="Enter your license key">
+        <button id="activate-btn" class="button">Activate Extension</button>
+        <div id="error-message" class="error"></div>
+        
+        <p style="text-align: center; margin-top: 16px;">
+            <a href="https://serp.ly/skool-video-downloader-extension" target="_blank" style="color: #3b82f6;">Get a license key →</a>
+        </p>
+    </div>
+    
+    <!-- Activated content -->
+    <div id="activated-content">
+        <div class="status active">
+            ✓ Extension activated
+        </div>
+        <p>Navigate to any Skool lesson page and click the blue download button that appears.</p>
+        
+        <button id="deactivate-btn" class="button secondary">Deactivate License</button>
+    </div>
     
     <div class="links">
         <a href="https://youtube.com/@devinschumacher" target="_blank">YouTube</a>

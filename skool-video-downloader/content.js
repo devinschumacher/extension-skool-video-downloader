@@ -1,5 +1,20 @@
 // Content script - runs on Skool classroom pages
 
+// Check license before initializing
+async function checkLicenseAndInit() {
+    try {
+        const response = await chrome.runtime.sendMessage({ action: 'checkLicense' });
+        if (response && response.isValid) {
+            // License is valid, create the download button
+            createDownloadButton();
+        } else {
+            console.log('SERP Skool Video Downloader: Extension not activated');
+        }
+    } catch (error) {
+        console.error('SERP Skool Video Downloader: License check failed', error);
+    }
+}
+
 // Create floating download button
 function createDownloadButton() {
     const button = document.createElement('button');
@@ -223,5 +238,5 @@ window.signupEmail = function() {
 
 // Initialize on page load
 if (window.location.pathname.includes('/classroom/')) {
-    createDownloadButton();
+    checkLicenseAndInit();
 }
