@@ -2,21 +2,21 @@ name: Bug Report 🐛
 description: Report a bug or issue
 title: "[BUG]: "
 labels: ["bug", "triage"]
-assignees: []
+assignees: [@devinschumacher]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to report this bug! Please fill out the information below to help us understand and fix the issue.
+        Please provide as much information as you can about the issue you're experiencing. The more you provide, the easier & faster I can fix it.
 
-  - type: input
-    id: video-url
+  - type: checkboxes
+    id: terms
     attributes:
-      label: Video URL
-      description: Please provide the URL where the video is embedded (ie the webpage your trying to download from)
-      placeholder: ex. https://example.com/video/123
-    validations:
-      required: true
+      label: Checklist
+      description: Please search the issues before submitting a new one
+      options:
+        - label: I have searched existing issues to make sure this hasn't been reported already
+          required: true
 
   - type: textarea
     id: error-message
@@ -31,13 +31,31 @@ body:
       required: true
 
   - type: input
-    id: media-link
+    id: video-page-url
     attributes:
-      label: Screenshots/Screencast Link
-      description: Please provide a link to screenshots or a screencast showing the issue (you can use services like imgur, loom, or attach files directly)
-      placeholder: ex. https://www.loom.com/share/...
+      label: Webpage where video appears
+      description: Please provide the URL where the video is embedded (ie the webpage your trying to download from)
+      placeholder: ex. https://www.skool.com/community/classroom/d0825db2?md=eacef6223b5c41a4a49a2f5b59c4fc7d
     validations:
       required: true
+
+  - type: input
+    id: video-url
+    attributes:
+      label: Looom video URL (optional)
+      description: Please the URL of the actual video (if you happen to have it)
+      placeholder: ex. https://loom.com/video/123
+    validations:
+      required: false
+
+  - type: input
+    id: media-link
+    attributes:
+      label: Screencast (optional)
+      description: Please provide a link to a screencast showing the issue (you can use a service like [zight](https://serp.ly/zight.com))
+      placeholder: ex. https://www.zight.com/share/...
+    validations:
+      required: false
 
   - type: textarea
     id: additional-details
@@ -52,28 +70,3 @@ body:
     validations:
       required: false
 
-  - type: dropdown
-    id: browser
-    attributes:
-      label: Browser
-      description: What browser are you using?
-      options:
-        - Chrome
-        - Firefox
-        - Safari
-        - Edge
-        - Other
-      default: 0
-    validations:
-      required: true
-
-  - type: checkboxes
-    id: terms
-    attributes:
-      label: Checklist
-      description: Please confirm the following
-      options:
-        - label: I have searched existing issues to make sure this hasn't been reported already
-          required: true
-        - label: I have included all the required information above
-          required: true
