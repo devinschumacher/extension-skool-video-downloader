@@ -2,7 +2,7 @@ name: Bug Report 🐛
 description: Report a bug or issue
 title: "[BUG]: "
 labels: ["bug", "triage"]
-assignees: [@devinschumacher]
+assignees: [devinschumacher]
 body:
   - type: markdown
     attributes:
