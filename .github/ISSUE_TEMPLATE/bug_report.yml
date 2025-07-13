@@ -1,5 +1,5 @@
-name: Bug Report
-description: Report a bug or issue with video playback
+name: Bug Report 🐛
+description: Report a bug or issue
 title: "[BUG]: "
 labels: ["bug", "triage"]
 assignees: []
@@ -13,7 +13,7 @@ body:
     id: video-url
     attributes:
       label: Video URL
-      description: Please provide the URL where the video is located
+      description: Please provide the URL where the video is embedded (ie: the webpage your trying to download from)
       placeholder: ex. https://example.com/video/123
     validations:
       required: true
@@ -35,7 +35,7 @@ body:
     attributes:
       label: Screenshots/Screencast Link
       description: Please provide a link to screenshots or a screencast showing the issue (you can use services like imgur, loom, or attach files directly)
-      placeholder: ex. https://imgur.com/a/abc123 or https://www.loom.com/share/...
+      placeholder: ex. https://www.loom.com/share/...
     validations:
       required: true
 
