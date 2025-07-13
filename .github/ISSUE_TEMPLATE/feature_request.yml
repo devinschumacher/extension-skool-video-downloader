@@ -1,7 +1,6 @@
 name: Feature 🎁
 description: >
   Use this template to request a new feature or enhancement.
-type: Feature
 title: "[FEAT]: "
 labels: ["enhancement", "triage"]
 
