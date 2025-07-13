@@ -6,6 +6,18 @@ A Chrome extension that adds a download button to Skool classroom pages for easy
 2. 📺 Get an overview: [Videos on how it works](https://www.youtube.com/playlist?list=PLGq4YK_k-L5icyQlHv5X-QntbwLWizqFB)
 3. 🆘 Get help: [Submit an issue here so I can help fix it.](https://github.com/devinschumacher/devinschumacher/issues)
 
+## Demos
+
+<a href="https://www.youtube.com/watch?v=WRSzeFI_Q7g" target="_blank">
+<img src="https://raw.githubusercontent.com/devinschumacher/uploads/refs/heads/main/images/easily-download-skool-videos-free-chrome-extension-1752429029672.jpg" width="700px">
+</a>
+
+<br><br>
+
+<a href="https://www.youtube.com/watch?v=J9eetd89HZk" target="_blank">
+<img src="https://raw.githubusercontent.com/devinschumacher/uploads/refs/heads/main/images/how-to-download-skoolcom-videos-browser-extension.jpg" width="700px">
+</a>
+
 ## How To Install & Use (MAC)
 
 ### Installation & setup
