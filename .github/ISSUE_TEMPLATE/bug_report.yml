@@ -1,0 +1,79 @@
+name: Bug Report
+description: Report a bug or issue with video playback
+title: "[BUG]: "
+labels: ["bug", "triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this bug! Please fill out the information below to help us understand and fix the issue.
+
+  - type: input
+    id: video-url
+    attributes:
+      label: Video URL
+      description: Please provide the URL where the video is located
+      placeholder: ex. https://example.com/video/123
+    validations:
+      required: true
+
+  - type: textarea
+    id: error-message
+    attributes:
+      label: Error Message
+      description: Please paste the exact error message you received
+      placeholder: |
+        Example: "Video failed to load: 404 Not Found"
+        or "Playback error: unsupported format"
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: media-link
+    attributes:
+      label: Screenshots/Screencast Link
+      description: Please provide a link to screenshots or a screencast showing the issue (you can use services like imgur, loom, or attach files directly)
+      placeholder: ex. https://imgur.com/a/abc123 or https://www.loom.com/share/...
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-details
+    attributes:
+      label: Additional Details
+      description: Please provide any additional context about the issue
+      placeholder: |
+        - What were you trying to do when this happened?
+        - Does this happen consistently or intermittently?
+        - What browser/device are you using?
+        - Any other relevant information
+    validations:
+      required: false
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      description: What browser are you using?
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Other
+      default: 0
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues to make sure this hasn't been reported already
+          required: true
+        - label: I have included all the required information above
+          required: true
