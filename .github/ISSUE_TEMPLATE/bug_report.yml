@@ -13,7 +13,7 @@ body:
     id: video-url
     attributes:
       label: Video URL
-      description: Please provide the URL where the video is embedded (ie: the webpage your trying to download from)
+      description: Please provide the URL where the video is embedded (ie the webpage your trying to download from)
       placeholder: ex. https://example.com/video/123
     validations:
       required: true
