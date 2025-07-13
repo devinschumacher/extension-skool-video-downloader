@@ -158,37 +158,17 @@ function showModal(data) {
                 
                 <div class="download-section">
                     <div class="video-url-container">
-                        <input type="text" value="yt-dlp &quot;${data.videoUrl}&quot;" readonly>
-                        <button onclick="navigator.clipboard.writeText('yt-dlp \\'${data.videoUrl}\\''); this.textContent='Copied!'">Copy Command</button>
+                        <button onclick="navigator.clipboard.writeText('yt-dlp -P ~/Desktop \\'${data.videoUrl}\\''); this.textContent='Copied!'">Copy Command</button>
                     </div>
-                    <p class="download-hint">Paste this command in your terminal to download</p>
+                    <p>1. Click the 'Copy Command' button above</p>
+                    <p>2. Open Terminal application on your Mac</p>
+                    <p>3. Paste the command & press enter</p>
+                    <p>The video will download to your desktop</p>
                 </div>
                 
                 <div class="youtube-section">
-                    <h3>How to use</h3>
-                    <div class="youtube-embed">
-                        <iframe width="100%" height="200" 
-                            src="https://www.youtube.com/embed/WRSzeFI_Q7g?si=DIaq34kWZBAVaTHG" 
-                            frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-                    <a href="https://serp.ly/@devinschumacher/youtube" target="_blank" class="cta-button youtube">
-                        Subscribe on YouTube
-                    </a>
-                </div>
-                
-                <div class="email-signup">
-                    <h3>Subscribe for Extras</h3>
-                    <a href="https://serp.ly/@devin/email" target="_blank" class="email-button">
-                        Join Newsletter →
-                    </a>
-                </div>
-                
-                <div class="social-links">
-                    <a href="https://twitter.com/dvnschmchr" target="_blank">Twitter</a>
-                    <a href="https://github.com/devinschumacher" target="_blank">GitHub</a>
+                    <h3>Need help?</h3>
+                    <p>If youre stuck ask for help in the <a href="https://serp.ly/@serp/community/support" target="_blank">https://serp.ly/@serp/community/support</a></p>
                 </div>
             </div>
         `;
