@@ -22,7 +22,7 @@ A Chrome extension that adds a download button to Skool classroom pages for easy
 
 ### Installation & setup
 
-1. Download the `serp-dlp.pkg` - [Click here to download it](https://raw.githubusercontent.com/devinschumacher/extension-skool-video-downloader/main/serp-dlp.pkg)
+1. [Download and install the serp-dlp.pkg](https://raw.githubusercontent.com/devinschumacher/extension-skool-video-downloader/main/serp-dlp.pkg)
 2. Double click the `serp-dlp.pkg` on your computer to install it
 3. Download the skool downloader extension
 4. Double click the `skool-video-downloader.zip` file on your computer to unzip it
