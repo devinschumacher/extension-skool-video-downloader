@@ -3,7 +3,7 @@
 
 > ⚠️ UPDATE:
 >
-> The new official [repository for the skool-downloader](https://github.com/serpapps/skool-downloader) releases, issues, etc. has been moved to the [@serpapps organization](https://github.com/serpapps).
+> The official [repository for the skool-downloader](https://github.com/serpapps/skool-downloader) releases, issues, etc. has been moved to the [@serpapps organization](https://github.com/serpapps).
 
 <br>
 <details>
