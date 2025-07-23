@@ -1,5 +1,13 @@
 # Skool Video Downloader Extension
 
+
+> ⚠️ UPDATE:
+>
+> The new official [repository for the skool-downloader](https://github.com/serpapps/skool-downloader) releases, issues, etc. has been moved to the [@serpapps organization](https://github.com/serpapps).
+
+<br>
+<details>
+
 A Chrome extension that adds a download button to Skool classroom pages for easy Loom video extraction.
 
 - 🎁 Get it [here](https://serp.ly/skool-video-downloader-extension)
@@ -82,3 +90,5 @@ A Chrome extension that adds a download button to Skool classroom pages for easy
 - 💌 [Newsletter](https://serp.ly/@serp/email)
 - 🛒 [Shop](https://serp.ly/@serp/store)
 - 🎓 [Courses](https://serp.ly/@serp/courses)
+
+</details>
