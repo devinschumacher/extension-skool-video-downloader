@@ -3,8 +3,8 @@
 A Chrome extension that adds a download button to Skool classroom pages for easy Loom video extraction.
 
 1. 🔗 Get it here: https://serp.ly/skool-video-downloader-extension
-2. 🆘 Ask for help: https://serp.ly/@serp/community
-3. 🐛 Report bugs: [Submit an issue here so I can help fix it.](https://github.com/devinschumacher/devinschumacher/issues)
+2. 🆘 Get help: https://serp.ly/@serp/community
+3. 🐛 Report bugs: [Submit an issue here so I can help fix it.](https://github.com/serpapps/skool-downloader/issues)
 
 ## Demos
 
