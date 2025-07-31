@@ -3,7 +3,7 @@
   "name": "Skool Video Downloader",
   "version": "1.2.1",
   "description": "Download loom videos to your computer from skool.com lessons",
-  "permissions": ["storage"],
+  "permissions": ["storage", "tabs"],
   "host_permissions": ["https://*.skool.com/*", "https://api.gumroad.com/*"],
   "background": {
     "service_worker": "background.js"
@@ -18,7 +18,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://www.skool.com/*/classroom/*"],
+      "matches": ["https://www.skool.com/*"],
       "js": ["content.js"],
       "css": ["styles.css"]
     }

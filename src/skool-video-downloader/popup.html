@@ -96,7 +96,7 @@
             font-size: 14px;
         }
         #activated-content {
-            display: none;
+            /* Will be controlled by JavaScript */
         }
         #license-content {
             display: none;
@@ -104,7 +104,7 @@
     </style>
 </head>
 <body>
-    <h1>SERP Skool Video Downloader</h1>
+    <h1>Skool Video Downloader</h1>
     
     <!-- Loading state -->
     <div id="loading" class="loading">Loading...</div>
@@ -126,12 +126,16 @@
     
     <!-- Activated content -->
     <div id="activated-content">
-        <div class="status active">
-            ✓ Extension activated
+        <div id="video-result">
+            <!-- Video extraction results will be shown here -->
+            <div style="text-align: center; color: #6b7280; padding: 20px;">
+                Checking for videos...
+            </div>
         </div>
-        <p>Navigate to any Skool lesson page and click the blue download button that appears.</p>
         
-        <button id="deactivate-btn" class="button secondary">Deactivate License</button>
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+            <button id="deactivate-btn" class="button secondary">Deactivate License</button>
+        </div>
     </div>
     
     <div class="links">

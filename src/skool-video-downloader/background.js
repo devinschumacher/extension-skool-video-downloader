@@ -37,6 +37,28 @@ async function verifyLicenseWithGumroad(licenseKey) {
   // 3. Extension calls your server, server calls Gumroad
 }
 
+// Fetch Loom video metadata
+async function fetchLoomMetadata(videoId) {
+  try {
+    // Try to fetch from Loom's public share page
+    const response = await fetch(`https://www.loom.com/share/${videoId}`);
+    const html = await response.text();
+    
+    // Extract title from meta tags
+    const titleMatch = html.match(/<meta property="og:title" content="([^"]+)"/);
+    const title = titleMatch ? titleMatch[1] : null;
+    
+    // Extract thumbnail
+    const thumbnailMatch = html.match(/<meta property="og:image" content="([^"]+)"/);
+    const thumbnail = thumbnailMatch ? thumbnailMatch[1] : null;
+    
+    return { title, thumbnail };
+  } catch (error) {
+    console.error('Error fetching Loom metadata:', error);
+    return { title: null, thumbnail: null };
+  }
+}
+
 // Listen for messages from popup or content scripts
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'verifyLicense') {
@@ -53,6 +75,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'clearLicense') {
     chrome.storage.local.remove(['licenseKey', 'licenseValid', 'purchaseData'])
       .then(() => sendResponse({ success: true }));
+    return true;
+  }
+  
+  if (request.action === 'fetchLoomMetadata') {
+    fetchLoomMetadata(request.videoId)
+      .then(metadata => sendResponse(metadata));
     return true;
   }
 });

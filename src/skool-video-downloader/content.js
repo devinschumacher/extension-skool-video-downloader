@@ -1,48 +1,86 @@
 // Content script - runs on Skool classroom pages
 
-// Check license before initializing
-async function checkLicenseAndInit() {
-    try {
-        const response = await chrome.runtime.sendMessage({ action: 'checkLicense' });
-        if (response && response.isValid) {
-            // License is valid, create the download button
-            createDownloadButton();
-        } else {
-            console.log('SERP Skool Video Downloader: Extension not activated');
-        }
-    } catch (error) {
-        console.error('SERP Skool Video Downloader: License check failed', error);
+// Listen for messages from popup
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'extractVideo') {
+        extractVideoForPopup(sendResponse);
+        return true; // Indicates async response
     }
-}
-
-// Create floating download button
-function createDownloadButton() {
-    const button = document.createElement('button');
-    button.id = 'skool-video-downloader-btn';
-    button.innerHTML = `
-        <img src="https://github.com/devinschumacher.png" style="width: 30px; height: 30px; margin-right: 8px;">
-        <span>Download Video</span>
-    `;
-    button.addEventListener('click', extractVideo);
-    document.body.appendChild(button);
-}
+});
 
 // Extract video and show modal
 function extractVideo() {
     console.log('🎥 Extract video clicked');
     
+    // First check for Loom iframes on the page
+    const loomIframes = document.querySelectorAll('iframe[src*="loom.com"]');
+    if (loomIframes.length > 0) {
+        extractLoomVideosFromIframes(loomIframes);
+        return;
+    }
+    
+    // If no iframes, check if we're on a classroom page with lesson data
     const urlParams = new URLSearchParams(window.location.search);
     const courseId = urlParams.get('md');
     
-    console.log('📚 Course ID from URL:', courseId);
+    if (courseId) {
+        extractClassroomVideo(courseId);
+        return;
+    }
     
-    if (!courseId) {
+    // No videos found
+    showModal({
+        success: false,
+        message: 'No videos found on this page. Make sure you are on a page with a Loom video.'
+    });
+}
+
+// Extract Loom videos from iframes
+function extractLoomVideosFromIframes(iframes) {
+    console.log('🔍 Found Loom iframes:', iframes.length);
+    
+    const videos = [];
+    iframes.forEach((iframe, index) => {
+        const src = iframe.src;
+        if (src) {
+            // Extract Loom video ID from the URL
+            const loomMatch = src.match(/loom\.com\/embed\/([a-zA-Z0-9]+)/);
+            if (loomMatch) {
+                const videoId = loomMatch[1];
+                const videoUrl = `https://www.loom.com/share/${videoId}`;
+                videos.push({
+                    url: videoUrl,
+                    title: `Loom Video ${index + 1}`
+                });
+            }
+        }
+    });
+    
+    if (videos.length === 0) {
         showModal({
             success: false,
-            message: 'This page does not have a lesson video. Navigate to a specific lesson with ?md= in the URL.'
+            message: 'Could not extract Loom video URLs. The video format may not be supported.'
         });
         return;
     }
+    
+    // If there's only one video, show it directly
+    if (videos.length === 1) {
+        showModal({
+            success: true,
+            videoUrl: videos[0].url,
+            title: videos[0].title,
+            duration: null
+        });
+    } else {
+        // If multiple videos, let user choose
+        showMultipleVideosModal(videos);
+    }
+}
+
+// Extract video from classroom lesson
+function extractClassroomVideo(courseId) {
+    console.log('📚 Course ID from URL:', courseId);
     
     // Find course data
     const nextDataScript = document.getElementById('__NEXT_DATA__');
@@ -157,18 +195,36 @@ function showModal(data) {
                 <p class="video-duration">Duration: ${durationStr}</p>
                 
                 <div class="download-section">
-                    <div class="video-url-container">
-                        <button onclick="navigator.clipboard.writeText('yt-dlp -P ~/Desktop \\'${data.videoUrl}\\''); this.textContent='Copied!'">Copy Command</button>
+                    <h3>Download Instructions</h3>
+                    
+                    <div class="os-section">
+                        <div class="video-url-container">
+                            <button onclick="navigator.clipboard.writeText('yt-dlp -P ~/Desktop \\'${data.videoUrl}\\''); this.textContent='Copied!'">Copy Mac Command</button>
+                        </div>
+                        <ol>
+                            <li>Click the 'Copy Mac Command' button above</li>
+                            <li>Open Terminal application</li>
+                            <li>Paste the command & press enter</li>
+                        </ol>
                     </div>
-                    <p>1. Click the 'Copy Command' button above</p>
-                    <p>2. Open Terminal application on your Mac</p>
-                    <p>3. Paste the command & press enter</p>
-                    <p>The video will download to your desktop</p>
+                    
+                    <div class="os-section">
+                        <div class="video-url-container">
+                            <button onclick="navigator.clipboard.writeText('yt-dlp -P %USERPROFILE%\\\\Desktop \\"${data.videoUrl}\\"'); this.textContent='Copied!'">Copy Windows Command</button>
+                        </div>
+                        <ol>
+                            <li>Click the 'Copy Windows Command' button above</li>
+                            <li>Open Command Prompt (cmd) or PowerShell</li>
+                            <li>Paste the command & press enter</li>
+                        </ol>
+                    </div>
+                    
+                    <p class="download-note">The video will download to your desktop</p>
                 </div>
                 
                 <div class="youtube-section">
                     <h3>Need help?</h3>
-                    <p>If youre stuck ask for help in the <a href="https://serp.ly/@serp/community/support" target="_blank">https://serp.ly/@serp/community/support</a></p>
+                    <p>If you're stuck ask for help in the <a href="https://serp.ly/@serp/community/support" target="_blank">Community</a></p>
                 </div>
             </div>
         `;
@@ -216,7 +272,119 @@ window.signupEmail = function() {
     }
 }
 
-// Initialize on page load
-if (window.location.pathname.includes('/classroom/')) {
-    checkLicenseAndInit();
+// Show modal for multiple videos
+function showMultipleVideosModal(videos) {
+    const existingModal = document.getElementById('skool-video-modal');
+    if (existingModal) existingModal.remove();
+    
+    const modal = document.createElement('div');
+    modal.id = 'skool-video-modal';
+    
+    let videoButtons = videos.map((video, index) => 
+        `<button onclick="showModal({success: true, videoUrl: '${video.url}', title: '${video.title}', duration: null}); this.closest('#skool-video-modal').remove()" class="video-select-btn">
+            ${video.title}
+        </button>`
+    ).join('');
+    
+    modal.innerHTML = `
+        <div class="modal-content">
+            <button class="close-btn" onclick="this.closest('#skool-video-modal').remove()">×</button>
+            <h2>Multiple Loom Videos Found</h2>
+            <p>Select a video to download:</p>
+            <div class="video-list">
+                ${videoButtons}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Extract video for popup response
+async function extractVideoForPopup(sendResponse) {
+    const videos = [];
+    
+    // First check for Loom iframes on the page
+    const loomIframes = document.querySelectorAll('iframe[src*="loom.com"]');
+    if (loomIframes.length > 0) {
+        for (let index = 0; index < loomIframes.length; index++) {
+            const iframe = loomIframes[index];
+            const src = iframe.src;
+            if (src) {
+                const loomMatch = src.match(/loom\.com\/embed\/([a-zA-Z0-9]+)/);
+                if (loomMatch) {
+                    const videoId = loomMatch[1];
+                    const videoUrl = `https://www.loom.com/share/${videoId}`;
+                    
+                    // Try to get video title from iframe attributes or nearby text
+                    let title = `Loom Video ${index + 1}`;
+                    
+                    // Check if iframe has a title attribute
+                    if (iframe.title) {
+                        title = iframe.title;
+                    } else {
+                        // Look for nearby heading or text that might be the title
+                        const parent = iframe.closest('div, article, section');
+                        if (parent) {
+                            const heading = parent.querySelector('h1, h2, h3, h4, h5, h6');
+                            if (heading && heading.textContent.trim()) {
+                                title = heading.textContent.trim();
+                            }
+                        }
+                    }
+                    
+                    videos.push({
+                        url: videoUrl,
+                        title: title,
+                        videoId: videoId,
+                        type: 'loom'
+                    });
+                }
+            }
+        }
+    }
+    
+    // Check if we're on a classroom page with lesson data
+    const urlParams = new URLSearchParams(window.location.search);
+    const courseId = urlParams.get('md');
+    
+    if (courseId) {
+        const nextDataScript = document.getElementById('__NEXT_DATA__');
+        if (nextDataScript) {
+            try {
+                const nextData = JSON.parse(nextDataScript.textContent);
+                const course = findCourseById(nextData, courseId);
+                
+                if (course && course.metadata && course.metadata.videoLink) {
+                    const metadata = course.metadata;
+                    let videoUrl = metadata.videoLink;
+                    const title = metadata.title || 'Untitled Lesson';
+                    
+                    // Clean YouTube URL
+                    if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+                        if (videoUrl.includes('youtube.com/watch')) {
+                            const urlObj = new URL(videoUrl);
+                            videoUrl = `https://www.youtube.com/watch?v=${urlObj.searchParams.get('v')}`;
+                        } else if (videoUrl.includes('youtu.be/')) {
+                            const videoId = videoUrl.split('youtu.be/')[1].split('?')[0];
+                            videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+                        }
+                    } else if (videoUrl.includes('loom.com')) {
+                        // Clean Loom URL
+                        videoUrl = videoUrl.split('?')[0];
+                    }
+                    
+                    videos.push({
+                        url: videoUrl,
+                        title: title,
+                        type: videoUrl.includes('youtube') ? 'youtube' : 'loom'
+                    });
+                }
+            } catch (e) {
+                console.error('Error extracting classroom video:', e);
+            }
+        }
+    }
+    
+    sendResponse({ videos: videos });
 }
