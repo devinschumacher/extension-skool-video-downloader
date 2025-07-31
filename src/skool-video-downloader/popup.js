@@ -134,9 +134,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (metadata.title) {
                   video.title = metadata.title;
                 }
-                if (metadata.thumbnail) {
-                  video.thumbnail = metadata.thumbnail;
-                }
               }
               return video;
             })
@@ -145,28 +142,17 @@ document.addEventListener('DOMContentLoaded', async () => {
           let videosHtml = '';
           
           videosWithMetadata.forEach((video, index) => {
-            const thumbnailHtml = video.thumbnail ? 
-              `<img src="${video.thumbnail}" style="width: 100%; height: auto; margin-bottom: 12px; border-radius: 4px;">` : '';
-            
             videosHtml += `
               <div style="margin-bottom: 16px; padding: 16px; background: #f9fafb; border-radius: 8px;">
-                ${thumbnailHtml}
                 <p style="font-weight: 600; margin-bottom: 8px;">${video.title}</p>
                 
-                <div style="margin-bottom: 12px;">
-                  <p style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Mac:</p>
-                  <div style="display: flex; gap: 8px;">
-                    <input type="text" value="yt-dlp -P ~/Desktop '${video.url}'" readonly style="flex: 1; padding: 6px 8px; border: 1px solid #e5e7eb; border-radius: 4px; font-family: monospace; font-size: 11px;">
-                    <button onclick="navigator.clipboard.writeText(this.previousElementSibling.value); this.textContent='Copied!'; setTimeout(() => this.textContent='Copy', 2000)" class="button" style="padding: 6px 12px; font-size: 12px;">Copy</button>
-                  </div>
-                </div>
-                
-                <div>
-                  <p style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Windows:</p>
-                  <div style="display: flex; gap: 8px;">
-                    <input type="text" value='yt-dlp -P %USERPROFILE%\\Desktop "${video.url}"' readonly style="flex: 1; padding: 6px 8px; border: 1px solid #e5e7eb; border-radius: 4px; font-family: monospace; font-size: 11px;">
-                    <button onclick="navigator.clipboard.writeText(this.previousElementSibling.value); this.textContent='Copied!'; setTimeout(() => this.textContent='Copy', 2000)" class="button" style="padding: 6px 12px; font-size: 12px;">Copy</button>
-                  </div>
+                <div style="display: flex; gap: 12px; justify-content: center;">
+                  <button class="button copy-btn" data-command="yt-dlp -P ~/Desktop '${video.url}'" style="padding: 8px 20px;">
+                    Copy for Mac
+                  </button>
+                  <button class="button copy-btn" data-command='yt-dlp -P %USERPROFILE%\\Desktop "${video.url}"' style="padding: 8px 20px;">
+                    Copy for Windows
+                  </button>
                 </div>
               </div>
             `;
@@ -175,12 +161,39 @@ document.addEventListener('DOMContentLoaded', async () => {
           videoResult.innerHTML = `
             <div>
               ${videosHtml}
+              
+              <div style="background: #f3f4f6; border-radius: 8px; padding: 16px; margin-top: 16px;">
+                <h3 style="font-size: 14px; font-weight: 600; margin: 0 0 12px 0; color: #111827;">How to download:</h3>
+                <ol style="margin: 0; padding-left: 20px; font-size: 13px; color: #4b5563;">
+                  <li style="margin-bottom: 6px;">Click the 'Copy' button for your operating system</li>
+                  <li style="margin-bottom: 6px;">Open Terminal (Mac) or Command Prompt/PowerShell (Windows)</li>
+                  <li style="margin-bottom: 6px;">Paste the command & press Enter</li>
+                  <li>The video will download to your desktop</li>
+                </ol>
+              </div>
+              
               <p style="font-size: 12px; color: #6b7280; margin-top: 12px; text-align: center;">
-                Videos will download to your desktop. Need help? Visit 
+                Need help? Visit 
                 <a href="https://serp.ly/@serp/community/support" target="_blank" style="color: #3b82f6;">support</a>
               </p>
             </div>
           `;
+          
+          // Add event listeners to copy buttons
+          document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const command = this.getAttribute('data-command');
+              navigator.clipboard.writeText(command).then(() => {
+                const originalText = this.textContent;
+                this.textContent = 'Copied!';
+                setTimeout(() => {
+                  this.textContent = originalText;
+                }, 2000);
+              }).catch(err => {
+                console.error('Failed to copy:', err);
+              });
+            });
+          });
         } else {
           videoResult.innerHTML = `
             <div style="padding: 12px; background: #fef3c7; color: #92400e; border-radius: 8px;">

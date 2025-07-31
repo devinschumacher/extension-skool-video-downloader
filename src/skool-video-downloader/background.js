@@ -48,14 +48,10 @@ async function fetchLoomMetadata(videoId) {
     const titleMatch = html.match(/<meta property="og:title" content="([^"]+)"/);
     const title = titleMatch ? titleMatch[1] : null;
     
-    // Extract thumbnail
-    const thumbnailMatch = html.match(/<meta property="og:image" content="([^"]+)"/);
-    const thumbnail = thumbnailMatch ? thumbnailMatch[1] : null;
-    
-    return { title, thumbnail };
+    return { title };
   } catch (error) {
     console.error('Error fetching Loom metadata:', error);
-    return { title: null, thumbnail: null };
+    return { title: null };
   }
 }
 
