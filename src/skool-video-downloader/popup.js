@@ -174,7 +174,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           
           videoResult.innerHTML = `
             <div>
-              <h3 style="font-size: 16px; margin-bottom: 12px;">Videos Found:</h3>
               ${videosHtml}
               <p style="font-size: 12px; color: #6b7280; margin-top: 12px; text-align: center;">
                 Videos will download to your desktop. Need help? Visit 
