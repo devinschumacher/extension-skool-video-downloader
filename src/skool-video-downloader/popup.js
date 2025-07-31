@@ -99,6 +99,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function extractVideos() {
     const videoResult = document.getElementById('video-result');
     
+    // Clear any previous results first
+    videoResult.innerHTML = `
+      <div style="text-align: center; color: #6b7280; padding: 20px;">
+        Checking for videos...
+      </div>
+    `;
+    
     // Get current tab
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     

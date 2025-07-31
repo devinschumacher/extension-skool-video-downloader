@@ -3,6 +3,7 @@
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'extractVideo') {
+        // Always extract fresh data when popup requests it
         extractVideoForPopup(sendResponse);
         return true; // Indicates async response
     }
@@ -301,14 +302,17 @@ function showMultipleVideosModal(videos) {
 }
 
 // Extract video for popup response
-async function extractVideoForPopup(sendResponse) {
+function extractVideoForPopup(sendResponse) {
     const videos = [];
+    let foundVideo = null; // Only keep one video
     
-    // First check for Loom iframes on the page
-    const loomIframes = document.querySelectorAll('iframe[src*="loom.com"]');
-    if (loomIframes.length > 0) {
-        for (let index = 0; index < loomIframes.length; index++) {
-            const iframe = loomIframes[index];
+    console.log('Extracting videos for URL:', window.location.href);
+    
+    // Method 1: Check for Loom iframes on the page (highest priority)
+    if (!foundVideo) {
+        const loomIframes = document.querySelectorAll('iframe[src*="loom.com"]');
+        if (loomIframes.length > 0) {
+            const iframe = loomIframes[0]; // Take first iframe
             const src = iframe.src;
             if (src) {
                 const loomMatch = src.match(/loom\.com\/embed\/([a-zA-Z0-9]+)/);
@@ -317,7 +321,7 @@ async function extractVideoForPopup(sendResponse) {
                     const videoUrl = `https://www.loom.com/share/${videoId}`;
                     
                     // Try to get video title from iframe attributes or nearby text
-                    let title = `Loom Video ${index + 1}`;
+                    let title = `Loom Video`;
                     
                     // Check if iframe has a title attribute
                     if (iframe.title) {
@@ -333,15 +337,96 @@ async function extractVideoForPopup(sendResponse) {
                         }
                     }
                     
-                    videos.push({
+                    foundVideo = {
                         url: videoUrl,
                         title: title,
                         videoId: videoId,
                         type: 'loom'
-                    });
+                    };
                 }
             }
         }
+    }
+    
+    // Method 2: Look for Loom links (for lazy-loaded videos)
+    if (!foundVideo) {
+        const allLinks = document.querySelectorAll('a[href*="loom.com"], div[data-loom-id], div[onclick*="loom.com"]');
+        for (const element of allLinks) {
+            let videoId = null;
+            
+            // Check href attribute
+            if (element.href) {
+                const loomMatch = element.href.match(/loom\.com\/(?:share|embed)\/([a-zA-Z0-9]+)/);
+                if (loomMatch) {
+                    videoId = loomMatch[1];
+                }
+            }
+            
+            // Check data attributes
+            if (!videoId && element.dataset.loomId) {
+                videoId = element.dataset.loomId;
+            }
+            
+            // Check onclick attribute
+            if (!videoId && element.onclick) {
+                const onclickStr = element.onclick.toString();
+                const loomMatch = onclickStr.match(/loom\.com\/(?:share|embed)\/([a-zA-Z0-9]+)/);
+                if (loomMatch) {
+                    videoId = loomMatch[1];
+                }
+            }
+            
+            if (videoId) {
+                const videoUrl = `https://www.loom.com/share/${videoId}`;
+                
+                let title = `Loom Video`;
+                const parent = element.closest('div, article, section');
+                if (parent) {
+                    const heading = parent.querySelector('h1, h2, h3, h4, h5, h6');
+                    if (heading && heading.textContent.trim()) {
+                        title = heading.textContent.trim();
+                    }
+                }
+                
+                foundVideo = {
+                    url: videoUrl,
+                    title: title,
+                    videoId: videoId,
+                    type: 'loom'
+                };
+                break; // Stop after finding first video
+            }
+        }
+    }
+    
+    // Method 3: Search in page's __NEXT_DATA__ for Loom URLs (fallback)
+    if (!foundVideo) {
+        const nextDataScript = document.getElementById('__NEXT_DATA__');
+        if (nextDataScript) {
+            try {
+                const nextDataStr = nextDataScript.textContent;
+                // Look for first Loom URL in the JSON data
+                const loomMatch = nextDataStr.match(/loom\.com\/(?:share|embed)\/([a-zA-Z0-9]+)/);
+                if (loomMatch) {
+                    const videoId = loomMatch[1];
+                    const videoUrl = `https://www.loom.com/share/${videoId}`;
+                    
+                    foundVideo = {
+                        url: videoUrl,
+                        title: `Loom Video`,
+                        videoId: videoId,
+                        type: 'loom'
+                    };
+                }
+            } catch (e) {
+                console.log('Error parsing __NEXT_DATA__:', e);
+            }
+        }
+    }
+    
+    // If we found a Loom video, add it to videos array
+    if (foundVideo) {
+        videos.push(foundVideo);
     }
     
     // Check if we're on a classroom page with lesson data
@@ -386,5 +471,6 @@ async function extractVideoForPopup(sendResponse) {
         }
     }
     
+    console.log('Sending videos:', videos);
     sendResponse({ videos: videos });
 }
