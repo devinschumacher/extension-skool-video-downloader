@@ -55,6 +55,21 @@ async function fetchLoomMetadata(videoId) {
   }
 }
 
+// Fetch Wistia video thumbnail
+async function fetchWistiaThumbnail(videoId) {
+  try {
+    // Try Wistia's oembed API
+    const response = await fetch(`https://fast.wistia.com/oembed?url=https://fast.wistia.net/embed/iframe/${videoId}`);
+    if (response.ok) {
+      const data = await response.json();
+      return { thumbnail: data.thumbnail_url || null };
+    }
+  } catch (error) {
+    console.error('Error fetching Wistia thumbnail:', error);
+  }
+  return { thumbnail: null };
+}
+
 // Listen for messages from popup or content scripts
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'verifyLicense') {
@@ -79,6 +94,35 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .then(metadata => sendResponse(metadata));
     return true;
   }
+  
+  if (request.action === 'fetchWistiaThumbnail') {
+    fetchWistiaThumbnail(request.videoId)
+      .then(result => sendResponse(result));
+    return true;
+  }
+  
+  if (request.action === 'updateBadge') {
+    // Update badge for the tab that sent the message
+    if (sender.tab && sender.tab.id) {
+      if (request.count > 0) {
+        chrome.action.setBadgeText({ 
+          text: String(request.count),
+          tabId: sender.tab.id 
+        });
+        chrome.action.setBadgeBackgroundColor({ 
+          color: '#4CAF50',
+          tabId: sender.tab.id 
+        });
+      } else {
+        // Clear badge if no videos
+        chrome.action.setBadgeText({ 
+          text: '',
+          tabId: sender.tab.id 
+        });
+      }
+    }
+    sendResponse({ success: true });
+  }
 });
 
 // Check license when extension starts
@@ -89,4 +133,17 @@ chrome.runtime.onInstalled.addListener(async () => {
     chrome.action.setBadgeText({ text: '!' });
     chrome.action.setBadgeBackgroundColor({ color: '#FF0000' });
   }
+});
+
+// Clear badge when tab is updated (navigated away)
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'loading') {
+    // Clear badge when navigating to a new page
+    chrome.action.setBadgeText({ text: '', tabId: tabId });
+  }
+});
+
+// Clear badge when tab is removed
+chrome.tabs.onRemoved.addListener((tabId) => {
+  // Badge is automatically cleared when tab is closed
 });

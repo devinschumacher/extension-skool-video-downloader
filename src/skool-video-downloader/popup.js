@@ -118,21 +118,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     
-    // Send message to content script
-    chrome.tabs.sendMessage(tab.id, { action: 'extractVideo' }, async (response) => {
-        if (chrome.runtime.lastError) {
-          videoResult.innerHTML = `
-            <div style="padding: 12px; background: #fee2e2; color: #991b1b; border-radius: 8px;">
-              Please refresh the page and try again
-            </div>
-          `;
-          return;
-        }
+    // Get videos from storage instead of messaging content script
+    chrome.storage.local.get(['detectedVideos'], async (result) => {
+        const videos = result.detectedVideos || [];
         
-        if (response && response.videos && response.videos.length > 0) {
-          // Fetch metadata for Loom videos
+        if (videos.length > 0) {
+          // Fetch metadata for videos
           const videosWithMetadata = await Promise.all(
-            response.videos.map(async (video) => {
+            videos.map(async (video) => {
+              // Fetch Loom metadata
               if (video.type === 'loom' && video.videoId) {
                 const metadata = await chrome.runtime.sendMessage({
                   action: 'fetchLoomMetadata',
@@ -142,6 +136,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                   video.title = metadata.title;
                 }
               }
+              
+              // Fetch Wistia thumbnail if missing
+              if (video.type === 'wistia' && video.videoId && !video.thumbnail) {
+                const result = await chrome.runtime.sendMessage({
+                  action: 'fetchWistiaThumbnail',
+                  videoId: video.videoId
+                });
+                if (result.thumbnail) {
+                  video.thumbnail = result.thumbnail;
+                  console.log('📺 Fetched Wistia thumbnail:', result.thumbnail);
+                }
+              }
+              
               return video;
             })
           );
@@ -149,6 +156,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           let videosHtml = '';
           
           videosWithMetadata.forEach((video, index) => {
+            console.log('📺 Processing video:', video);
+            console.log('📺 Video thumbnail:', video.thumbnail);
+            
             // Generate platform-specific download commands
             const macCmd = generateDownloadCommand(video, false);
             const winCmd = generateDownloadCommand(video, true);
@@ -159,23 +169,39 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             // Generate thumbnail HTML
             let thumbnailHtml = '';
+            
             if (video.thumbnail) {
+              console.log('📺 Creating thumbnail HTML for URL:', video.thumbnail);
               thumbnailHtml = `
                 <div style="margin-bottom: 12px; text-align: center;">
                   <img src="${video.thumbnail}" 
                        alt="${video.title}" 
                        style="max-width: 100%; height: auto; max-height: 180px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
-                       onerror="this.style.display='none'">
+                       onerror="console.error('Failed to load thumbnail'); this.style.display='none';">
                 </div>
               `;
-            } else if (video.type === 'youtube' && video.videoId) {
-              // Fallback for YouTube videos
+            } else {
+              // Show a nice placeholder with video icon
+              const videoIcons = {
+                youtube: '📺',
+                vimeo: '🎬',
+                loom: '🎥',
+                wistia: '🎞️',
+                skool: '🎓'
+              };
+              const icon = videoIcons[video.type] || '📹';
+              
               thumbnailHtml = `
                 <div style="margin-bottom: 12px; text-align: center;">
-                  <img src="https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg" 
-                       alt="${video.title}" 
-                       style="max-width: 100%; height: auto; max-height: 180px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
-                       onerror="this.style.display='none'">
+                  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                              padding: 40px; 
+                              border-radius: 8px; 
+                              box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="font-size: 48px; margin-bottom: 8px;">${icon}</div>
+                    <div style="color: white; font-size: 14px; font-weight: 500;">
+                      ${video.type ? video.type.charAt(0).toUpperCase() + video.type.slice(1) : 'Video'} Ready
+                    </div>
+                  </div>
                 </div>
               `;
             }
@@ -261,7 +287,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           `;
         }
         
-      });
+    });
   }
   
   // Provider-specific download commands
