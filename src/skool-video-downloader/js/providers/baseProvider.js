@@ -60,9 +60,14 @@ class BaseVideoProvider {
     
     // Extract thumbnail from page elements
     extractThumbnailFromElement(element) {
+        // Check if element is a video with poster
+        if (element.tagName === 'VIDEO' && element.poster && !element.poster.includes('data:image')) {
+            return element.poster;
+        }
+        
         // Look for common thumbnail patterns
         const img = element.querySelector('img');
-        if (img && img.src) {
+        if (img && img.src && !img.src.includes('data:image')) {
             return img.src;
         }
         
@@ -70,8 +75,16 @@ class BaseVideoProvider {
         const bgElement = element.querySelector('[style*="background-image"]');
         if (bgElement) {
             const match = bgElement.style.backgroundImage.match(/url\(['"]?([^'")]+)['"]?\)/);
-            if (match) {
+            if (match && !match[1].includes('data:image')) {
                 return match[1];
+            }
+        }
+        
+        // Check parent element for images
+        if (element.parentElement) {
+            const parentImg = element.parentElement.querySelector('img');
+            if (parentImg && parentImg.src && !parentImg.src.includes('data:image')) {
+                return parentImg.src;
             }
         }
         

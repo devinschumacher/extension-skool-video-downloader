@@ -20,6 +20,14 @@ function detectPageLocation() {
         return 'about';
     }
     
+    // Community posts with direct URLs (e.g., /group-name/post-title)
+    // This matches patterns like /the-blueprint-training/50-off-traffic-projection-tool
+    const pathParts = pathname.split('/').filter(part => part.length > 0);
+    if (pathParts.length === 2 && !pathname.includes('/classroom/')) {
+        console.log('🔍 Detected as community post by URL pattern');
+        return 'community';
+    }
+    
     // Check for other indicators
     const hasVideoPlayer = document.querySelector('.video-player, .lesson-video, [class*="classroom"]');
     if (hasVideoPlayer) {

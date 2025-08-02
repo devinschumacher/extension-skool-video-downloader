@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const licenseContent = document.getElementById('license-content');
   const activatedContent = document.getElementById('activated-content');
   const activateBtn = document.getElementById('activate-btn');
-  const deactivateBtn = document.getElementById('deactivate-btn');
+  const clearVideosBtn = document.getElementById('clear-videos-btn');
   const licenseInput = document.getElementById('license-input');
   const errorMessage = document.getElementById('error-message');
 
@@ -71,20 +71,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Handle deactivation
-  deactivateBtn.addEventListener('click', async () => {
-    if (confirm('Are you sure you want to deactivate your license?')) {
-      await chrome.runtime.sendMessage({ action: 'clearLicense' });
-      
-      // Reset UI
-      activatedContent.style.display = 'none';
-      licenseContent.style.display = 'block';
-      licenseInput.value = '';
-      errorMessage.textContent = '';
-      
-      // Set warning badge
-      chrome.action.setBadgeText({ text: '!' });
-      chrome.action.setBadgeBackgroundColor({ color: '#FF0000' });
+  // Handle clear videos
+  clearVideosBtn.addEventListener('click', async () => {
+    // Clear stored videos
+    await chrome.storage.local.remove(['detectedVideos']);
+    
+    // Clear badge
+    chrome.action.setBadgeText({ text: '' });
+    
+    // Update UI to show no videos
+    const videoResult = document.getElementById('video-result');
+    videoResult.innerHTML = `
+      <div style="text-align: center; color: #6b7280; padding: 20px;">
+        <p style="font-size: 16px; margin-bottom: 8px;">Videos cleared!</p>
+        <p style="font-size: 14px;">Navigate to a page with videos to detect new ones.</p>
+      </div>
+    `;
+    
+    // Optional: Refresh the page to re-detect videos
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab.url.includes('skool.com')) {
+      chrome.tabs.reload(tab.id);
     }
   });
 

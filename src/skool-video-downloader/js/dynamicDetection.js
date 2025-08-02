@@ -15,17 +15,28 @@ function setupDynamicVideoDetection(callback) {
                 for (const node of mutation.addedNodes) {
                     if (node.nodeType === 1) { // Element node
                         const element = node;
+                        // Check for various video indicators
                         if (element.tagName === 'IFRAME' || 
+                            element.tagName === 'VIDEO' ||
                             element.querySelector?.('iframe') ||
+                            element.querySelector?.('video') ||
                             element.className?.includes('video') ||
                             element.innerHTML?.includes('vimeo') ||
                             element.innerHTML?.includes('youtube') ||
                             element.innerHTML?.includes('loom') ||
-                            element.innerHTML?.includes('wistia')) {
+                            element.innerHTML?.includes('wistia') ||
+                            element.innerHTML?.includes('skool') ||
+                            element.querySelector?.('[src*="blob:"]') ||
+                            element.querySelector?.('track[src*="video.skool.com"]')) {
                             shouldCheck = true;
                             break;
                         }
                     }
+                }
+                
+                // Also check for attribute changes on video elements
+                if (mutation.type === 'attributes' && mutation.target.tagName === 'VIDEO') {
+                    shouldCheck = true;
                 }
                 if (shouldCheck) break;
             }

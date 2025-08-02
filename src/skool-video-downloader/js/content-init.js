@@ -1,4 +1,3 @@
-// Content script initialization - sets up dynamic detection and runs initial scan
 // This file ensures videos are detected both on page load and when dynamically added
 
 // Wait for DOM to be ready
@@ -73,7 +72,6 @@ function detectAndNotifyVideos() {
             console.log(`✅ Found ${videos.length} video(s)`);
             videos.forEach((video, index) => {
                 console.log(`  ${index + 1}. ${video.provider || video.type}: ${video.title || video.videoId}`);
-                console.log(`    Thumbnail: ${video.thumbnail || 'None'}`);
             });
             
             // Store detected videos for popup

@@ -31,8 +31,10 @@
         "js/locationDetectors.js",
         "js/videoDetection.js",
         "js/classroomVideo.js",
+        "js/dynamicDetection.js",
         "js/modal-v2.js",
-        "js/content-main-v2.js"
+        "js/content-main-v2.js",
+        "js/content-init.js"
       ],
       "css": ["styles.css"]
     }
