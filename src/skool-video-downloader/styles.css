@@ -272,6 +272,35 @@
     border-color: #d1d5db;
 }
 
+/* Video thumbnails */
+.video-thumbnail {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    max-height: 225px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+}
+
+.video-thumbnail.small {
+    width: 60px;
+    height: 45px;
+    margin-right: 12px;
+    margin-bottom: 0;
+    vertical-align: middle;
+}
+
+.video-thumbnail-container {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.video-thumbnail.error {
+    display: none;
+}
+
 /* OS-specific sections */
 .os-section {
     background: #f9fafb;

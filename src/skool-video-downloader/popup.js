@@ -149,18 +149,63 @@ document.addEventListener('DOMContentLoaded', async () => {
           let videosHtml = '';
           
           videosWithMetadata.forEach((video, index) => {
+            // Generate platform-specific download commands
+            const macCmd = generateDownloadCommand(video, false);
+            const winCmd = generateDownloadCommand(video, true);
+            
+            // Escape commands for HTML attributes
+            const macCmdEscaped = macCmd.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            const winCmdEscaped = winCmd.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            
+            // Generate thumbnail HTML
+            let thumbnailHtml = '';
+            if (video.thumbnail) {
+              thumbnailHtml = `
+                <div style="margin-bottom: 12px; text-align: center;">
+                  <img src="${video.thumbnail}" 
+                       alt="${video.title}" 
+                       style="max-width: 100%; height: auto; max-height: 180px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
+                       onerror="this.style.display='none'">
+                </div>
+              `;
+            } else if (video.type === 'youtube' && video.videoId) {
+              // Fallback for YouTube videos
+              thumbnailHtml = `
+                <div style="margin-bottom: 12px; text-align: center;">
+                  <img src="https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg" 
+                       alt="${video.title}" 
+                       style="max-width: 100%; height: auto; max-height: 180px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
+                       onerror="this.style.display='none'">
+                </div>
+              `;
+            }
+            
             videosHtml += `
               <div style="margin-bottom: 16px; padding: 16px; background: #f9fafb; border-radius: 8px;">
+                ${thumbnailHtml}
                 <p style="font-weight: 600; margin-bottom: 8px;">${video.title}</p>
+                <p style="font-size: 12px; color: #6b7280; margin-bottom: 12px;">Platform: ${video.type || 'unknown'}</p>
                 
                 <div style="display: flex; gap: 12px; justify-content: center;">
-                  <button class="button copy-btn" data-command="yt-dlp -P ~/Desktop '${video.url}'" style="padding: 8px 20px;">
+                  <button class="button copy-btn" data-command="${macCmdEscaped}" style="padding: 8px 20px;">
                     Copy for Mac
                   </button>
-                  <button class="button copy-btn" data-command='yt-dlp -P %USERPROFILE%\\Desktop "${video.url}"' style="padding: 8px 20px;">
+                  <button class="button copy-btn" data-command="${winCmdEscaped}" style="padding: 8px 20px;">
                     Copy for Windows
                   </button>
                 </div>
+                
+                ${video.type === 'vimeo' ? `
+                  <p style="font-size: 11px; color: #dc2626; margin-top: 8px; text-align: center;">
+                    ⚠️ Vimeo videos may require additional authentication. If you get an OAuth error, the video may be private.
+                  </p>
+                ` : ''}
+                
+                ${video.type === 'youtube' ? `
+                  <p style="font-size: 11px; color: #059669; margin-top: 8px; text-align: center;">
+                    ✓ Will download in best quality (up to 1080p)
+                  </p>
+                ` : ''}
               </div>
             `;
           });
@@ -190,7 +235,14 @@ document.addEventListener('DOMContentLoaded', async () => {
           document.querySelectorAll('.copy-btn').forEach(btn => {
             btn.addEventListener('click', function() {
               const command = this.getAttribute('data-command');
-              navigator.clipboard.writeText(command).then(() => {
+              // Decode HTML entities
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = command;
+              const decodedCommand = tempDiv.textContent || tempDiv.innerText || '';
+              
+              console.log('Copying command:', decodedCommand); // Debug log
+              
+              navigator.clipboard.writeText(decodedCommand).then(() => {
                 const originalText = this.textContent;
                 this.textContent = 'Copied!';
                 setTimeout(() => {
@@ -210,5 +262,60 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         
       });
+  }
+  
+  // Provider-specific download commands
+  const providerCommands = {
+    youtube: {
+      getCommand: (url, isWindows) => {
+        const format = '-f "bestvideo[height<=1080]+bestaudio/best[height<=1080]" --merge-output-format mp4';
+        const basePath = isWindows ? '-P %USERPROFILE%\\\\Desktop' : '-P ~/Desktop';
+        const quote = isWindows ? '"' : "'";
+        return `yt-dlp ${format} ${basePath} ${quote}${url}${quote}`;
+      }
+    },
+    vimeo: {
+      getCommand: (url, isWindows) => {
+        const headers = '--add-header "Referer: https://vimeo.com"';
+        const basePath = isWindows ? '-P %USERPROFILE%\\\\Desktop' : '-P ~/Desktop';
+        const quote = isWindows ? '"' : "'";
+        return `yt-dlp ${headers} ${basePath} ${quote}${url}${quote}`;
+      }
+    },
+    loom: {
+      getCommand: (url, isWindows) => {
+        const basePath = isWindows ? '-P %USERPROFILE%\\\\Desktop' : '-P ~/Desktop';
+        const quote = isWindows ? '"' : "'";
+        return `yt-dlp ${basePath} ${quote}${url}${quote}`;
+      }
+    },
+    wistia: {
+      getCommand: (url, isWindows) => {
+        const basePath = isWindows ? '-P %USERPROFILE%\\\\Desktop' : '-P ~/Desktop';
+        const quote = isWindows ? '"' : "'";
+        return `yt-dlp ${basePath} ${quote}${url}${quote}`;
+      }
+    },
+    skool: {
+      getCommand: (url, isWindows) => {
+        const basePath = isWindows ? '-P %USERPROFILE%\\\\Desktop' : '-P ~/Desktop';
+        const quote = isWindows ? '"' : "'";
+        return `yt-dlp ${basePath} ${quote}${url}${quote}`;
+      }
+    }
+  };
+
+  // Generate platform-specific download commands with quality settings
+  function generateDownloadCommand(video, isWindows = false) {
+    // Use provider-specific command if available
+    const providerName = video.providerName || video.type;
+    if (providerName && providerCommands[providerName]) {
+      return providerCommands[providerName].getCommand(video.url, isWindows);
+    }
+    
+    // Fallback to basic command
+    const basePath = isWindows ? '-P %USERPROFILE%\\\\Desktop' : '-P ~/Desktop';
+    const quote = isWindows ? '"' : "'";
+    return `yt-dlp ${basePath} ${quote}${video.url}${quote}`;
   }
 });
